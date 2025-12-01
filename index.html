@@ -2,7 +2,8 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>RED Dragon Equation CLUB (v11.3 Mobile Layout Fixed)</title>
+    <meta name="viewport" content="width=1200, initial-scale=0.5, user-scalable=yes">
+    <title>RED Dragon Equation CLUB (v11.4 Fixed 2-Col Layout)</title>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap');
@@ -14,7 +15,7 @@
             padding: 0;
             min-height: 100vh;
             width: 100%;
-            overflow-x: hidden;
+            overflow-x: auto; /* Allow horizontal scrolling */
             overflow-y: auto;
         }
 
@@ -40,26 +41,39 @@
         #main-app { display: none; flex-direction: column; align-items: center; width: 100%; min-height: 100vh; padding: 10px; box-sizing: border-box; background-color: #e0e0e0; position: relative; }
         .btn-exit { position: absolute; top: 10px; right: 20px; padding: 5px 15px; background: #555; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; z-index: 100; }
 
-        /* --- LAYOUT --- */
-        #export-area { background-color: #e0e0e0; width: 100%; display: flex; justify-content: center; padding-bottom: 20px; flex-direction: column; align-items: center; }
+        /* --- LAYOUT FIXES --- */
+        #export-area { 
+            background-color: #e0e0e0; 
+            width: 100%; 
+            display: flex; 
+            justify-content: flex-start; /* Fix: Start from left to avoid cutting off on mobile */
+            padding-bottom: 20px; 
+            flex-direction: column; 
+            align-items: center; 
+            overflow-x: visible; 
+        }
         
-        /* Modified Main Container for Responsiveness */
+        /* KEY FIX: Force 2 Columns Layout 
+           We set a min-width so it never wraps.
+        */
         .main-container { 
             display: flex; 
+            flex-wrap: nowrap; /* Do not wrap */
             gap: 15px; 
             align-items: flex-start; 
             height: auto; 
-            width: 100%; 
-            justify-content: center; 
-            flex-wrap: wrap; /* Key fix for mobile: Wrap columns */
+            /* Width logic to support fixed 2 columns */
+            width: auto;
+            min-width: 1150px; /* Force minimum width to fit Board(600) + Panel(520) + Gap */
+            margin: 0 auto; /* Center on large screens */
         }
 
-        /* --- LOG & ACTION STYLES --- */
+        /* --- ACTION ROW (Buttons under Rack) --- */
         .action-row {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
             gap: 10px;
-            width: 594px; /* Same width as player row */
+            width: 594px; /* Matches player row width */
             margin-top: 10px;
         }
         .action-row button {
@@ -72,7 +86,7 @@
             font-weight: bold;
         }
 
-        /* MOVED LOG STYLES */
+        /* --- LOG SECTION (Moved to Right) --- */
         .log-section-right {
             margin-top: 15px;
             border-top: 2px dashed #ccc;
@@ -94,11 +108,11 @@
         .log-entry.action { color: #555; padding-left: 5px; }
 
         /* LEFT PANEL (BOARD) */
-        .left-panel { display: flex; flex-direction: column; gap: 15px; width: 600px; align-items: center; max-width: 100%; }
-        .board-title { margin: 0 0 5px 0; color: #8b0000; font-size: 24px; text-transform: uppercase; letter-spacing: 1px; text-align: center; width: 100%; max-width: 584px; }
+        .left-panel { display: flex; flex-direction: column; gap: 15px; width: 600px; align-items: center; flex-shrink: 0; /* Prevent shrinking */ }
+        .board-title { margin: 0 0 5px 0; color: #8b0000; font-size: 24px; text-transform: uppercase; letter-spacing: 1px; text-align: center; width: 100%; }
 
         /* STATUS BAR */
-        #game-status-bar { display: none; width: 584px; justify-content: space-between; background: #333; color: white; padding: 10px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); max-width: 95vw; }
+        #game-status-bar { display: none; width: 584px; justify-content: space-between; background: #333; color: white; padding: 10px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
         .timer-box { text-align: center; width: 120px; padding: 5px; border-radius: 4px; }
         .timer-box.active { background-color: #f1c40f; color: #333; font-weight: bold; box-shadow: 0 0 10px #f1c40f; }
         .timer-label { font-size: 12px; display: block; }
@@ -112,7 +126,7 @@
         .cell::after { content: attr(data-bonus); font-size: 7px; color: rgba(0,0,0,0.3); position: absolute; z-index: 0; }
 
         /* PLAYER ROWS */
-        .player-row { display: flex; width: 594px; gap: 10px; align-items: stretch; transition: all 0.3s; padding: 5px; border-radius: 8px; max-width: 95vw; }
+        .player-row { display: flex; width: 594px; gap: 10px; align-items: stretch; transition: all 0.3s; padding: 5px; border-radius: 8px; }
         .player-row.active-turn { background-color: rgba(46, 204, 113, 0.2); border: 2px solid #27ae60; }
         .score-box-compact { background: #fff; border: 2px solid #8b0000; border-radius: 6px; width: 100px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .score-label { font-size: 14px; font-weight: bold; color: #555; }
@@ -126,7 +140,7 @@
         .rack-slots.masked .tile span { display: none; } 
 
         /* RIGHT PANEL */
-        .right-panel { width: 520px; display: flex; flex-direction: column; gap: 15px; margin-top: 0; max-width: 95vw; }
+        .right-panel { width: 520px; display: flex; flex-direction: column; gap: 15px; margin-top: 0; flex-shrink: 0; /* Prevent shrinking */ }
         .pool-section { background: white; padding: 10px; border-radius: 8px; display: flex; flex-direction: column; height: auto; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .pool-header-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: bold; font-size: 12px; }
         
@@ -175,14 +189,7 @@
         .teaching-title { font-size: 20px; font-weight: bold; color: #333; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
         #teaching-board { display: grid; grid-template-columns: repeat(15, 38px); grid-template-rows: repeat(3, 38px); gap: 1px; background-color: #777; border: 5px solid #556b2f; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
 
-        /* Mobile specific fixes */
-        @media (max-width: 650px) {
-            #board { transform: scale(0.6); margin: -100px 0; }
-            .board-title { font-size: 18px; }
-            .action-row { width: 100%; max-width: 350px; }
-            .player-row { width: 100%; max-width: 360px; }
-            .right-panel { width: 100%; }
-        }
+        /* No Mobile Specific shrinking to preserve 2 column layout */
     </style>
 </head>
 <body>
