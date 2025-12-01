@@ -1,0 +1,1274 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <title>RED Dragon Equation CLUB (v11.2 Teaching Layout Fixed)</title>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap');
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #e0e0e0;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            width: 100%;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        /* --- MODALS --- */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 20px; border-radius: 10px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.3); max-width: 400px; width: 90%; }
+        .modal-btn-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 15px; }
+        .exchange-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 20px 0; min-height: 50px; }
+        .select-btn { padding: 10px; font-size: 18px; font-weight: bold; background: #f5a2a2; border: 1px solid #d48888; border-radius: 5px; cursor: pointer; }
+        .select-btn:hover { background: #e08e8e; }
+
+        /* --- LANDING PAGE --- */
+        #landing-page { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; background: linear-gradient(135deg, #f3f0e6 0%, #e0e0e0 100%); position: fixed; top: 0; left: 0; width: 100%; z-index: 999; transition: opacity 0.5s ease; }
+        .logo-title { font-size: 48px; font-weight: bold; color: #8b0000; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); }
+        .subtitle { font-size: 20px; color: #555; margin-bottom: 40px; }
+        .mode-selection { display: flex; gap: 20px; }
+        .btn-start { padding: 20px 40px; font-size: 20px; font-weight: bold; color: white; border: none; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.3s; min-width: 200px; }
+        .btn-teach { background-color: #27ae60; }
+        .btn-compete { background-color: #c0392b; }
+        .btn-start:hover { transform: scale(1.05); filter: brightness(1.1); }
+
+        /* --- MAIN APP --- */
+        #main-app { display: none; flex-direction: column; align-items: center; width: 100%; min-height: 100vh; padding: 10px; box-sizing: border-box; background-color: #e0e0e0; position: relative; }
+        .btn-exit { position: absolute; top: 10px; right: 20px; padding: 5px 15px; background: #555; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 12px; z-index: 100; }
+
+        /* --- LAYOUT --- */
+        #export-area { background-color: #e0e0e0; width: 100%; display: flex; justify-content: center; padding-bottom: 20px; flex-direction: column; align-items: center; }
+        .main-container { display: flex; gap: 15px; align-items: flex-start; height: auto; width: 100%; justify-content: center; }
+
+        /* LOG PANEL */
+        .log-panel { width: 250px; display: flex; flex-direction: column; gap: 10px; height: 600px; }
+        .log-box { background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; flex-direction: column; flex: 1; overflow: hidden; max-height: 480px; }
+        .log-header { background: #8b0000; color: white; padding: 10px; font-weight: bold; text-align: center; font-size: 14px; }
+        .log-content { flex: 1; padding: 10px; overflow-y: auto; font-size: 12px; font-family: monospace; line-height: 1.4; }
+        .log-entry { margin-bottom: 5px; border-bottom: 1px solid #eee; padding-bottom: 2px; }
+        .log-entry.turn { color: #000; font-weight: bold; margin-top: 5px; background: #f0f0f0;}
+        .log-entry.action { color: #555; padding-left: 5px; }
+        .log-action-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .log-action-buttons button { padding: 15px 5px; font-size: 16px; border-radius: 6px; }
+
+        /* LEFT PANEL (BOARD) */
+        .left-panel { display: flex; flex-direction: column; gap: 15px; width: 600px; align-items: center; }
+        .board-title { margin: 0 0 5px 0; color: #8b0000; font-size: 24px; text-transform: uppercase; letter-spacing: 1px; text-align: center; width: 584px; }
+
+        /* STATUS BAR */
+        #game-status-bar { display: none; width: 584px; justify-content: space-between; background: #333; color: white; padding: 10px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .timer-box { text-align: center; width: 120px; padding: 5px; border-radius: 4px; }
+        .timer-box.active { background-color: #f1c40f; color: #333; font-weight: bold; box-shadow: 0 0 10px #f1c40f; }
+        .timer-label { font-size: 12px; display: block; }
+        .timer-display { font-size: 24px; font-family: monospace; font-weight: bold; }
+        .turn-indicator { font-size: 18px; font-weight: bold; align-self: center; }
+
+        /* BOARD */
+        #board { display: grid; grid-template-columns: repeat(15, 38px); grid-template-rows: repeat(15, 38px); gap: 1px; background-color: #777; border: 5px solid #444; box-shadow: 0 4px 10px rgba(0,0,0,0.3); width: 584px; height: 584px; box-sizing: content-box; }
+        .cell { width: 38px; height: 38px; background-color: #f3f0e6; display: flex; justify-content: center; align-items: center; position: relative; cursor: pointer; }
+        .red { background-color: #e74c3c; } .yellow { background-color: #f1c40f; } .blue { background-color: #3498db; } .orange { background-color: #e67e22; } 
+        .cell::after { content: attr(data-bonus); font-size: 7px; color: rgba(0,0,0,0.3); position: absolute; z-index: 0; }
+
+        /* PLAYER ROWS */
+        .player-row { display: flex; width: 594px; gap: 10px; align-items: stretch; transition: all 0.3s; padding: 5px; border-radius: 8px; }
+        .player-row.active-turn { background-color: rgba(46, 204, 113, 0.2); border: 2px solid #27ae60; }
+        .score-box-compact { background: #fff; border: 2px solid #8b0000; border-radius: 6px; width: 100px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .score-label { font-size: 14px; font-weight: bold; color: #555; }
+        .score-input-field { width: 80%; font-size: 24px; font-weight: bold; color: #333; text-align: center; border: none; border-bottom: 2px solid #eee; outline: none; background: transparent;}
+        .rack-container { flex: 1; background: #fff; padding: 5px 10px; border-radius: 6px; border: 2px dashed #aaa; min-height: 55px; display: flex; flex-direction: column; justify-content: center; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .rack-label { font-weight: bold; font-size: 12px; color: #777; margin-bottom: 2px; }
+        .rack-slots { display: flex; gap: 4px; flex-wrap: wrap; min-height: 40px; align-items: center; }
+        
+        /* MASKED RACK */
+        .rack-slots.masked .tile { background-color: #999 !important; border-color: #666 !important; cursor: default !important; }
+        .rack-slots.masked .tile span { display: none; } 
+
+        /* RIGHT PANEL */
+        .right-panel { width: 520px; display: flex; flex-direction: column; gap: 15px; margin-top: 0; }
+        .pool-section { background: white; padding: 10px; border-radius: 8px; display: flex; flex-direction: column; height: auto; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .pool-header-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: bold; font-size: 12px; }
+        
+        .compact-grid { display: flex; flex-direction: row; gap: 5px; height: auto; }
+        .pool-column { display: flex; flex-direction: column; gap: 10px; }
+        .grid-col, .grid-col-combined { background: #f9f9f9; padding: 5px; border-radius: 4px; border: 1px solid #eee; display: flex; flex-direction: column; gap: 2px; }
+        .split-container { display: flex; flex: 1; }
+        .sub-col { flex: 1; padding: 5px; display: flex; flex-direction: column; gap: 2px; }
+        .sub-col:first-child { border-right: 1px solid #e0e0e0; }
+        .col-title { font-size: 11px; font-weight: bold; color: #777; text-transform: uppercase; display: flex; justify-content: space-between; align-items: center; background: #e0e0e0; padding: 2px 8px; border-radius: 3px; margin-bottom: 2px; }
+        .col-title-combined { border-radius: 0; margin-bottom: 0; padding: 3px 8px; border-bottom: 1px solid #d0d0d0; }
+        
+        .pool-list { display: flex; flex-direction: column; gap: 2px; }
+        
+        /* Standard Row */
+        .pool-row { display: flex; flex-wrap: nowrap; align-items: center; height: 38px; padding-left: 2px; border-bottom: 1px dotted #ddd; cursor: default; }
+        .pool-row:last-child { border-bottom: none; }
+        
+        /* Grid Layouts for specific tiles */
+        .visual-grid-eq { display: grid; grid-template-columns: repeat(2, 34px); grid-gap: 4px; justify-content: center; padding-top: 5px; padding-bottom: 5px; }
+        .visual-grid-pm { display: grid; grid-template-columns: repeat(3, 34px); grid-gap: 4px; justify-content: center; padding-top: 5px; padding-bottom: 5px; }
+
+        .card { background: white; padding: 15px; border-radius: 8px; width: 100%; box-sizing: border-box; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .btn-group { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+        .btn { padding: 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; color: white; font-size: 14px; min-width: 0; }
+        .btn-save { background-color: #27ae60; } .btn-load { background-color: #2980b9; } .btn-reset { background-color: #c0392b; } 
+        .btn-export { background-color: #9b59b6; } .btn-export-board { background-color: #3498db; } .btn-export-rack { background-color: #1abc9c; } 
+        .btn-submit { background-color: #d35400; display: none; color:white; border:none; cursor: pointer; font-weight:bold;} 
+        .btn-pass { background-color: #7f8c8d; display: none; color:white; border:none; cursor: pointer; font-weight:bold;} 
+        .btn-exchange { background-color: #8e44ad; display: none; color:white; border:none; cursor: pointer; font-weight:bold;}
+        .btn-recall { background-color: #e67e22; display: none; color:white; border:none; cursor: pointer; font-weight:bold;}
+        .btn:hover, .log-action-buttons button:hover { opacity: 0.9; }
+        #fileInput { display: none; }
+
+        .tile { width: 34px; height: 34px; background-color: #f5a2a2; border: 1px solid #d48888; border-bottom: 2px solid #b06b6b; border-radius: 4px; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 18px; color: #333; cursor: grab; position: relative; z-index: 10; user-select: none; box-shadow: 1px 1px 2px rgba(0,0,0,0.1); margin-right: 2px; flex-shrink: 0; }
+        .tile.selected { border: 3px solid #3498db; transform: scale(1.1); z-index: 100; }
+        .tile.exchange-selected { border: 3px solid #8e44ad; background-color: #d2b4de; }
+        .tile-score { position: absolute; bottom: 0px; right: 2px; font-size: 9px; font-weight: normal; color: #444; }
+        .tile.new-placement { background-color: #ffeaa7; }
+        .tile.locked { cursor: default !important; filter: brightness(0.95); border-color: #888; }
+        .tile.visual-only { cursor: default !important; }
+
+        .teaching-section { display: flex; flex-direction: column; align-items: center; width: 100%; padding-bottom: 50px; border-top: 2px dashed #999; padding-top: 20px; background-color: #dcdcdc; margin-top: 20px; }
+        .teaching-title { font-size: 20px; font-weight: bold; color: #333; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
+        #teaching-board { display: grid; grid-template-columns: repeat(15, 38px); grid-template-rows: repeat(3, 38px); gap: 1px; background-color: #777; border: 5px solid #556b2f; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+    </style>
+</head>
+<body>
+
+    <div id="bag-storage" style="display:none;"></div>
+
+    <div id="tile-modal" class="modal">
+        <div class="modal-content">
+            <h3>เลือกค่าของเบี้ย (Select Value)</h3>
+            <div id="modal-options" class="modal-btn-grid"></div>
+            <button onclick="closeModal()" style="margin-top:15px; padding:5px 10px;">Cancel</button>
+        </div>
+    </div>
+
+    <div id="exchange-modal" class="modal">
+        <div class="modal-content">
+            <h3>เปลี่ยนตัวเบี้ย (Exchange Tiles)</h3>
+            <p style="font-size:12px; color:#555;">คลิกที่เบี้ยเพื่อเลือก/ยกเลิก</p>
+            <div id="exchange-container" class="exchange-grid"></div>
+            <div style="display:flex; justify-content:center; gap:10px;">
+                <button class="btn btn-exchange" style="display:inline-block;" onclick="confirmExchange()">Confirm Exchange</button>
+                <button class="btn btn-reset" style="display:inline-block; width:auto;" onclick="closeExchangeModal()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="landing-page">
+        <div class="logo-title">RED Dragon Equation CLUB</div>
+        <div class="subtitle">Professional A-Math Analysis & Tournament System</div>
+        <div class="mode-selection">
+            <button class="btn-start btn-teach" onclick="startApp('teaching')">โหมดการสอน (Teaching)</button>
+            <button class="btn-start btn-compete" onclick="startApp('competition')">โหมดแข่งขัน (Competition)</button>
+        </div>
+    </div>
+
+    <div id="main-app">
+        <button class="btn-exit" onclick="exitApp()">กลับหน้าหลัก (Home)</button>
+
+        <div id="export-area">
+            <h1 class="board-title">RED Dragon Equation CLUB Analysis Board</h1>
+
+            <div class="main-container">
+                <div class="log-panel">
+                    <div class="log-box">
+                        <div class="log-header">GAME LOG</div>
+                        <div id="game-log" class="log-content"></div>
+                    </div>
+                    <div class="log-action-buttons">
+                        <button class="btn-submit" id="btn-submit" onclick="submitTurn()">Submit</button>
+                        <button class="btn-pass" id="btn-pass" onclick="passTurnAction()">Pass</button>
+                        <button class="btn-exchange" id="btn-exchange" onclick="openExchangeModal()">Exchange</button>
+                        <button class="btn-recall" id="btn-recall" onclick="recallTiles()">Recall</button>
+                    </div>
+                </div>
+
+                <div class="left-panel">
+                    <div id="game-status-bar">
+                        <div class="timer-box" id="timer-box-me">
+                            <span class="timer-label" id="label-timer-me">ME (Time)</span>
+                            <span class="timer-display" id="timer-me">15:00</span>
+                        </div>
+                        <div class="turn-indicator" id="turn-msg">Waiting...</div>
+                        <div class="timer-box" id="timer-box-opp">
+                            <span class="timer-label" id="label-timer-opp">OPP (Time)</span>
+                            <span class="timer-display" id="timer-opp">15:00</span>
+                        </div>
+                    </div>
+
+                    <div id="board"></div>
+
+                    <div class="player-row" id="row-me">
+                        <div class="score-box-compact">
+                            <span class="score-label" id="label-score-me">ME</span>
+                            <input type="number" id="score-me" class="score-input-field" value="0">
+                        </div>
+                        <div class="rack-container" id="my-rack-container">
+                            <div class="rack-label" id="label-rack-me">My Rack</div>
+                            <div id="rack-me" class="rack-slots drop-zone" data-zone="rack"></div>
+                        </div>
+                    </div>
+
+                    <div class="player-row" id="row-opp">
+                        <div class="score-box-compact">
+                            <span class="score-label" id="label-score-opp">OPP</span>
+                            <input type="number" id="score-opp" class="score-input-field" value="0">
+                        </div>
+                        <div class="rack-container">
+                            <div class="rack-label" id="label-rack-opp">Opponent Rack</div>
+                            <div id="rack-opp" class="rack-slots drop-zone" data-zone="rack"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="right-panel">
+                    <div class="pool-section">
+                        <div class="pool-header-row">
+                            <div class="rack-label" style="margin:0;">Remaining Tiles (Pool)</div>
+                            <div id="remaining-count" class="pool-count">(100/100)</div>
+                        </div>
+                        
+                        <div class="compact-grid">
+                            <div class="pool-column" style="flex: 1.8;">
+                                <div class="grid-col" id="view-container-low">
+                                    <div id="header-low" class="col-title"><span>LOW NUMBERS (0-9)</span><span>(0/0)</span></div>
+                                    <div class="pool-list" id="content-low"></div>
+                                </div>
+                                <div class="grid-col-combined">
+                                    <div id="header-ops" class="col-title col-title-combined"><span>Operators</span><span>(0/0)</span></div>
+                                    <div class="split-container">
+                                        <div class="sub-col">
+                                            <div class="pool-list" id="content-ops-1"></div>
+                                        </div>
+                                        <div class="sub-col">
+                                            <div class="pool-list" id="content-ops-2"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="pool-column" style="flex: 1;">
+                                <div class="grid-col-combined">
+                                    <div id="header-high" class="col-title col-title-combined"><span>High Numbers (10-20)</span><span>(0/0)</span></div>
+                                    <div class="split-container">
+                                        <div class="sub-col">
+                                            <div class="pool-list" id="content-high-1"></div>
+                                        </div>
+                                        <div class="sub-col">
+                                            <div class="pool-list" id="content-high-2"></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="grid-col" id="view-container-eq">
+                                    <div id="header-eq" class="col-title"><span>Equals (=)</span><span>(0/0)</span></div>
+                                    <div class="pool-list" id="content-eq"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <label style="font-size:12px; font-weight:bold; color:#555;">บันทึก (Notes):</label>
+                        <textarea id="game-notes" placeholder="บันทึกรูปเกม..."></textarea>
+                        
+                        <div class="btn-group">
+                            <button class="btn btn-save" onclick="saveGame()">Save JSON</button>
+                            <button class="btn btn-load" onclick="document.getElementById('fileInput').click()">Load JSON</button>
+                            <button class="btn btn-reset" onclick="resetAll()">Reset</button>
+                            
+                            <button class="btn btn-export-board" onclick="exportBoardOnly()">Save Board</button>
+                            <button class="btn btn-export-rack" onclick="exportRackOnly()">Save My Rack</button>
+                            <button class="btn btn-export" onclick="exportBoard()">Save All</button>
+                            
+                            <input type="file" id="fileInput" accept=".json" onchange="loadGame(this)">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div> 
+
+        <div class="teaching-section" id="teach-sec">
+            <div class="teaching-title">TEACHING BOARD (3x15)</div>
+            <div id="teaching-board"></div>
+        </div>
+        
+    </div>
+
+    <script>
+        let currentMode = 'teaching';
+        let activePlayer = 'me';
+        let turnCount = 1;
+        let timers = { me: 900, opp: 900 };
+        let timerInterval = null;
+        let selectedTile = null;
+        let maxCounts = {};
+        let placedTiles = []; 
+        let pendingTileForModal = null;
+        let tilesToExchange = [];
+
+        const tileConfig = [
+            {val: '0', score: 1, count: 5, type: 'low'}, {val: '1', score: 1, count: 6, type: 'low'}, {val: '2', score: 1, count: 6, type: 'low'},
+            {val: '3', score: 1, count: 5, type: 'low'}, {val: '4', score: 2, count: 5, type: 'low'}, {val: '5', score: 2, count: 4, type: 'low'},
+            {val: '6', score: 2, count: 4, type: 'low'}, {val: '7', score: 2, count: 4, type: 'low'}, {val: '8', score: 2, count: 4, type: 'low'},
+            {val: '9', score: 2, count: 4, type: 'low'},
+            {val: '10', score: 3, count: 2, type: 'high1'}, {val: '11', score: 4, count: 1, type: 'high1'}, {val: '12', score: 3, count: 2, type: 'high1'},
+            {val: '13', score: 6, count: 1, type: 'high1'}, {val: '14', score: 4, count: 1, type: 'high1'}, {val: '15', score: 4, count: 1, type: 'high1'},
+            {val: '16', score: 4, count: 1, type: 'high2'}, {val: '17', score: 6, count: 1, type: 'high2'}, {val: '18', score: 4, count: 1, type: 'high2'},
+            {val: '19', score: 7, count: 1, type: 'high2'}, {val: '20', score: 5, count: 1, type: 'high2'},
+            {val: '+', score: 2, count: 4, type: 'ops1'}, {val: '-', score: 2, count: 4, type: 'ops1'}, {val: '±', score: 1, count: 5, type: 'ops1', isPoly: true}, 
+            {val: ' ', score: 0, count: 4, type: 'ops2', isPoly: true},
+            {val: '×', score: 2, count: 4, type: 'ops2'}, {val: '÷', score: 2, count: 4, type: 'ops2'}, {val: '×/÷', score: 1, count: 4, type: 'ops2', isPoly: true},
+            {val: '=', score: 1, count: 11, type: 'eq'}
+        ];
+
+        const bonusMap = {
+            '0,0':'R', '0,7':'R', '0,14':'R', '7,0':'R', '7,14':'R', '14,0':'R', '14,7':'R', '14,14':'R',
+            '1,1':'Y', '2,2':'Y', '3,3':'Y', '11,11':'Y', '12,12':'Y', '13,13':'Y',
+            '1,13':'Y', '2,12':'Y', '3,11':'Y', '11,3':'Y', '12,2':'Y', '13,1':'Y',
+            '1,5':'B', '1,9':'B', '5,1':'B', '5,5':'B', '5,9':'B', '5,13':'B',
+            '9,1':'B', '9,5':'B', '9,9':'B', '9,13':'B', '13,5':'B', '13,9':'B',
+            '4,4':'B', '4,10':'B', '10,4':'B', '10,10':'B',
+            '0,3':'O', '0,11':'O', '2,6':'O', '2,8':'O', '3,0':'O', '3,7':'O', '3,14':'O',
+            '6,2':'O', '6,6':'O', '6,8':'O', '6,12':'O', '7,3':'O', '7,11':'O',
+            '8,2':'O', '8,6':'O', '8,8':'O', '8,12':'O', '11,0':'O', '11,7':'O', '11,14':'O',
+            '12,6':'O', '12,8':'O', '14,3':'O', '14,11':'O'
+        };
+
+        function startApp(mode) {
+            currentMode = mode;
+            document.getElementById('landing-page').style.opacity = 0;
+            setTimeout(() => {
+                document.getElementById('landing-page').style.display = 'none';
+                document.getElementById('main-app').style.display = 'flex';
+                setupModeUI();
+                if(mode === 'competition') {
+                    initCompetitionMode();
+                } else {
+                    initTeachingMode();
+                }
+            }, 500);
+        }
+
+        function initCompetitionMode() {
+            createAllTilesCompetition(); 
+            fillRack('me');
+            fillRack('opp');
+            addToLog('Game Start', `Initial Draw 8 tiles`, '-');
+            updateCompetitionView();
+        }
+
+        function initTeachingMode() {
+            createAllTilesTeaching();
+            updateTeachingView();
+        }
+
+        function exitApp() {
+            clearInterval(timerInterval);
+            location.reload(); 
+        }
+
+        function setupModeUI() {
+            const isComp = currentMode === 'competition';
+            document.getElementById('game-status-bar').style.display = isComp ? 'flex' : 'none';
+            document.getElementById('btn-submit').style.display = isComp ? 'block' : 'none';
+            document.getElementById('btn-pass').style.display = isComp ? 'block' : 'none';
+            document.getElementById('btn-exchange').style.display = isComp ? 'block' : 'none';
+            document.getElementById('btn-recall').style.display = isComp ? 'block' : 'none';
+            document.getElementById('teach-sec').style.display = isComp ? 'none' : 'flex'; 
+            
+            document.getElementById('score-me').readOnly = isComp;
+            document.getElementById('score-opp').readOnly = isComp;
+
+            if(isComp) {
+                document.getElementById('label-score-me').innerText = "P1";
+                document.getElementById('label-score-opp').innerText = "P2";
+                document.getElementById('label-rack-me').innerText = "Player 1";
+                document.getElementById('label-rack-opp').innerText = "Player 2";
+                document.getElementById('label-timer-me').innerText = "P1 (Time)";
+                document.getElementById('label-timer-opp').innerText = "P2 (Time)";
+                startTimer();
+                updateTurnUI();
+            }
+        }
+
+        function startTimer() {
+            if(timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if(timers[activePlayer] > 0) {
+                    timers[activePlayer]--;
+                    updateTimerDisplay();
+                } else {
+                    clearInterval(timerInterval);
+                    alert((activePlayer==='me'?'Player 1':'Player 2') + " Ran out of time!");
+                }
+            }, 1000);
+        }
+
+        function updateTimerDisplay() {
+            const fmt = (s) => {
+                const m = Math.floor(s/60);
+                const sec = s%60;
+                return `${m.toString().padStart(2,'0')}:${sec.toString().padStart(2,'0')}`;
+            };
+            document.getElementById('timer-me').innerText = fmt(timers.me);
+            document.getElementById('timer-opp').innerText = fmt(timers.opp);
+        }
+
+        function updateTurnUI() {
+            document.getElementById('row-me').classList.toggle('active-turn', activePlayer === 'me');
+            document.getElementById('row-opp').classList.toggle('active-turn', activePlayer === 'opp');
+            document.getElementById('timer-box-me').classList.toggle('active', activePlayer === 'me');
+            document.getElementById('timer-box-opp').classList.toggle('active', activePlayer === 'opp');
+            document.getElementById('turn-msg').innerText = activePlayer === 'me' ? "PLAYER 1 TURN" : "PLAYER 2 TURN";
+
+            if(currentMode === 'competition') {
+                if(activePlayer === 'me') {
+                    document.getElementById('rack-opp').classList.add('masked');
+                    document.getElementById('rack-me').classList.remove('masked');
+                } else {
+                    document.getElementById('rack-me').classList.add('masked');
+                    document.getElementById('rack-opp').classList.remove('masked');
+                }
+                updateCompetitionView();
+            }
+        }
+
+        function init() {
+            calculateMaxCounts();
+            createBoard();
+            createTeachingBoard();
+            setupDropZones();
+            setupClickListeners();
+            document.getElementById('game-log').innerHTML = '';
+        }
+
+        function calculateMaxCounts() {
+            maxCounts = { low: 0, high: 0, ops: 0, eq: 0 };
+            tileConfig.forEach(g => {
+                if(g.type === 'low') maxCounts.low += g.count;
+                if(g.type === 'high1' || g.type === 'high2') maxCounts.high += g.count;
+                if(g.type === 'ops1' || g.type === 'ops2') maxCounts.ops += g.count;
+                if(g.type === 'eq') maxCounts.eq += g.count;
+            });
+        }
+
+        function createBoard() {
+            const board = document.getElementById('board');
+            board.innerHTML = '';
+            for (let r = 0; r < 15; r++) {
+                for (let c = 0; c < 15; c++) {
+                    let cell = document.createElement('div');
+                    cell.className = 'cell drop-zone';
+                    cell.id = `cell-${r}-${c}`; 
+                    cell.dataset.loc = `${r},${c}`;
+                    cell.dataset.zone = 'board';
+                    let key = `${r},${c}`;
+                    if (r===7 && c===7) { cell.classList.add('blue'); cell.dataset.bonus = "3x Pc"; }
+                    else if (bonusMap[key]) {
+                        if(bonusMap[key] === 'R') { cell.classList.add('red'); cell.dataset.bonus = "3x EQ"; }
+                        if(bonusMap[key] === 'Y') { cell.classList.add('yellow'); cell.dataset.bonus = "2x EQ"; }
+                        if(bonusMap[key] === 'B') { cell.classList.add('blue'); cell.dataset.bonus = "3x Pc"; }
+                        if(bonusMap[key] === 'O') { cell.classList.add('orange'); cell.dataset.bonus = "2x Pc"; }
+                    }
+                    board.appendChild(cell);
+                }
+            }
+        }
+
+        function createTeachingBoard() {
+            const tBoard = document.getElementById('teaching-board');
+            tBoard.innerHTML = '';
+            for (let r = 0; r < 3; r++) {
+                for (let c = 0; c < 15; c++) {
+                    let cell = document.createElement('div');
+                    cell.className = 'cell drop-zone';
+                    cell.id = `teach-${r}-${c}`; 
+                    cell.dataset.loc = `${r},${c}`;
+                    cell.dataset.zone = 'teaching';
+                    tBoard.appendChild(cell);
+                }
+            }
+        }
+
+        // --- TILE CREATION LOGIC: COMPETITION ---
+        function createAllTilesCompetition() {
+            const container = document.getElementById('bag-storage');
+            container.innerHTML = '';
+            let idCounter = 0;
+            tileConfig.forEach(group => {
+                for(let i=0; i<group.count; i++) {
+                    let tile = createTileElement(group, idCounter++);
+                    container.appendChild(tile);
+                }
+            });
+        }
+
+        // --- TILE CREATION LOGIC: TEACHING (With Grouping Rows) ---
+        function createAllTilesTeaching() {
+            const contentMap = {
+                'low': 'content-low', 'high1': 'content-high-1', 'high2': 'content-high-2',
+                'ops1': 'content-ops-1', 'ops2': 'content-ops-2', 'eq': 'content-eq'
+            };
+            
+            // Clean containers
+            for(let key in contentMap) document.getElementById(contentMap[key]).innerHTML = '';
+
+            let idCounter = 0;
+            tileConfig.forEach(group => {
+                for(let i=0; i<group.count; i++) {
+                    let tile = createTileElement(group, idCounter++);
+                    // Restore v9.7 getRow logic for Teaching
+                    let container = document.getElementById(contentMap[group.type]);
+                    
+                    // Special Grids check
+                    if(group.val === '=') {
+                        let w = document.getElementById('teach-eq-grid');
+                        if(!w) { w=document.createElement('div'); w.id='teach-eq-grid'; w.className='visual-grid-eq'; container.appendChild(w); }
+                        w.appendChild(tile);
+                    } else if (group.val === '±') {
+                        let w = document.getElementById('teach-pm-grid');
+                        if(!w) { w=document.createElement('div'); w.id='teach-pm-grid'; w.className='visual-grid-pm'; container.appendChild(w); }
+                        w.appendChild(tile);
+                    } else {
+                        // Standard Rows
+                        let row = getRow(container, group.val, group.type);
+                        row.appendChild(tile);
+                    }
+                }
+            });
+        }
+
+        function createTileElement(group, id) {
+            let tile = document.createElement('div');
+            tile.className = 'tile';
+            tile.draggable = true;
+            tile.id = `tile-${id}`;
+            tile.dataset.val = group.val;
+            tile.dataset.score = group.score;
+            tile.dataset.groupType = group.type; 
+            if(group.isPoly) tile.dataset.isPoly = "true";
+            tile.innerHTML = `<span>${group.val}</span><span class="tile-score">${group.score}</span>`;
+            tile.addEventListener('dragstart', handleDragStart);
+            tile.onclick = handleTileClick;
+            return tile;
+        }
+
+        // Helper for Teaching Mode Rows
+        function getRow(container, val, type) {
+            let safeVal = val.replace(/\+/g, 'plus').replace(/-/g, 'minus').replace(/=/g, 'eq').replace(/×/g, 'mul').replace(/÷/g, 'div').replace(/ /g, 'blank').replace(/±/g, 'pm').replace(/×\/÷/g, 'muldiv');
+            let rowId = `row-${type}-${safeVal}`;
+            let row = document.getElementById(rowId);
+            if(!row || !container.contains(row)) {
+                row = document.createElement('div');
+                row.className = 'pool-row drop-zone';
+                row.id = rowId;
+                row.dataset.rowVal = val; 
+                row.dataset.zone = 'pool'; 
+                container.appendChild(row);
+            }
+            return row;
+        }
+
+        // --- UPDATE VIEWS ---
+        function updateTeachingView() {
+            // Count tiles in pool content divs
+            const getC = (id) => document.getElementById(id).querySelectorAll('.tile').length;
+            document.getElementById('remaining-count').innerText = `(${document.querySelectorAll('.pool-section .tile').length}/100)`;
+            
+            // Update Headers
+            document.getElementById('header-low').innerHTML = `<span>LOW NUMBERS (0-9)</span><span>(${getC('content-low')}/${maxCounts.low})</span>`;
+            let hC = getC('content-high-1') + getC('content-high-2');
+            document.getElementById('header-high').innerHTML = `<span>High Numbers (10-20)</span><span>(${hC}/${maxCounts.high})</span>`;
+            let oC = getC('content-ops-1') + getC('content-ops-2');
+            document.getElementById('header-ops').innerHTML = `<span>Operators</span><span>(${oC}/${maxCounts.ops})</span>`;
+            document.getElementById('header-eq').innerHTML = `<span>Equals (=)</span><span>(${getC('content-eq')}/${maxCounts.eq})</span>`;
+        }
+
+        function updateCompetitionView() {
+            // Logic: Count Real Bag + Opponent Rack
+            const bagTiles = Array.from(document.querySelectorAll('#bag-storage .tile'));
+            const oppRackId = activePlayer === 'me' ? 'rack-opp' : 'rack-me';
+            const oppRackTiles = Array.from(document.querySelectorAll(`#${oppRackId} .tile`));
+            
+            const unseenTiles = [...bagTiles, ...oppRackTiles];
+            
+            let counts = {};
+            unseenTiles.forEach(t => {
+                let val = t.dataset.val;
+                if(!counts[val]) counts[val] = 0;
+                counts[val]++;
+            });
+
+            document.getElementById('remaining-count').innerText = `(${unseenTiles.length}/100)`;
+
+            // Render Function: Clears content div and rebuilds
+            const renderTo = (containerId, typeFilter) => {
+                const container = document.getElementById(containerId);
+                container.innerHTML = ''; 
+
+                let uniqueVals = [];
+                tileConfig.forEach(g => {
+                    if(g.type === typeFilter && !uniqueVals.includes(g.val)) uniqueVals.push(g.val);
+                });
+
+                uniqueVals.forEach(val => {
+                    let count = counts[val] || 0;
+                    
+                    let target = container;
+                    if(val === '=') {
+                        let w = document.createElement('div');
+                        w.className = 'visual-grid-eq';
+                        container.appendChild(w);
+                        target = w;
+                    } else if (val === '±') {
+                        let w = document.createElement('div');
+                        w.className = 'visual-grid-pm';
+                        container.appendChild(w);
+                        target = w;
+                    } else {
+                        let row = document.createElement('div');
+                        row.className = 'pool-row';
+                        container.appendChild(row);
+                        target = row;
+                    }
+
+                    for(let i=0; i<count; i++) {
+                        let vt = document.createElement('div');
+                        vt.className = 'tile visual-only';
+                        let sc = tileConfig.find(c => c.val === val).score;
+                        vt.innerHTML = `<span>${val}</span><span class="tile-score">${sc}</span>`;
+                        target.appendChild(vt);
+                    }
+                });
+            };
+
+            renderTo('content-low', 'low');
+            renderTo('content-high-1', 'high1');
+            renderTo('content-high-2', 'high2');
+            renderTo('content-ops-1', 'ops1');
+            renderTo('content-ops-2', 'ops2');
+            renderTo('content-eq', 'eq');
+            
+            // Header Counts
+            const getC = (id) => document.getElementById(id).querySelectorAll('.tile').length;
+            
+            document.getElementById('header-low').innerHTML = `<span>LOW NUMBERS (0-9)</span><span>(${getC('content-low')}/${maxCounts.low})</span>`;
+            let hC = getC('content-high-1') + getC('content-high-2');
+            document.getElementById('header-high').innerHTML = `<span>High Numbers (10-20)</span><span>(${hC}/${maxCounts.high})</span>`;
+            let oC = getC('content-ops-1') + getC('content-ops-2');
+            document.getElementById('header-ops').innerHTML = `<span>Operators</span><span>(${oC}/${maxCounts.ops})</span>`;
+            document.getElementById('header-eq').innerHTML = `<span>Equals (=)</span><span>(${getC('content-eq')}/${maxCounts.eq})</span>`;
+        }
+
+        // --- INTERACTIONS ---
+        function setupClickListeners() {
+            document.querySelectorAll('.cell').forEach(c => c.onclick = handleContainerClick);
+            document.getElementById('rack-me').onclick = handleContainerClick;
+            document.getElementById('rack-opp').onclick = handleContainerClick;
+            document.getElementById('teaching-board').querySelectorAll('.cell').forEach(c => c.onclick = handleContainerClick);
+            
+            // Pool Interaction: Only in Teaching Mode
+            // We attach listener to pool containers but filter inside handler
+            const poolContainers = document.querySelectorAll('.pool-list');
+            poolContainers.forEach(pc => pc.onclick = (e) => {
+                if(currentMode === 'teaching') {
+                    let tile = e.target.closest('.tile');
+                    if(tile) handleTileClick(e);
+                    else {
+                        // Handle clicking on row background
+                        let row = e.target.closest('.pool-row');
+                        if(row) handleContainerClick(e);
+                    }
+                }
+            });
+        }
+
+        function setupDropZones() {
+            const zones = document.querySelectorAll('.drop-zone');
+            zones.forEach(zone => {
+                zone.addEventListener('dragover', (e) => e.preventDefault());
+                zone.addEventListener('drop', handleDrop);
+            });
+        }
+
+        function handleDragStart(e) {
+            const tile = e.target.closest('.tile');
+            if(tile.classList.contains('locked') || tile.classList.contains('visual-only')) {
+                e.preventDefault();
+                return;
+            }
+            if(tile.parentElement.classList.contains('masked')) {
+                e.preventDefault();
+                return;
+            }
+            draggedTile = tile;
+            e.dataTransfer.setData('text/plain', draggedTile.id);
+            deselectTile();
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            let target = e.target.closest('.drop-zone');
+            if (target && draggedTile) processMove(draggedTile, target);
+        }
+
+        function handleTileClick(e) {
+            e.stopPropagation();
+            const clickedTile = e.target.closest('.tile');
+            if (!clickedTile || clickedTile.classList.contains('locked') || clickedTile.classList.contains('visual-only')) return;
+            
+            if(clickedTile.parentElement.classList.contains('masked')) return;
+
+            if(document.getElementById('exchange-modal').style.display === 'flex') {
+                toggleExchangeSelection(clickedTile);
+                return;
+            }
+
+            if (!selectedTile) { selectTile(clickedTile); return; }
+            if (selectedTile === clickedTile) { deselectTile(); return; }
+
+            const p1 = selectedTile.parentElement;
+            const p2 = clickedTile.parentElement;
+            const isRack1 = (p1.id === 'rack-me' || p1.id === 'rack-opp');
+            const isRack2 = (p2.id === 'rack-me' || p2.id === 'rack-opp');
+
+            if (isRack1 && isRack2) {
+                const temp = document.createElement("div");
+                p1.insertBefore(temp, selectedTile);
+                p2.insertBefore(selectedTile, clickedTile);
+                temp.parentNode.insertBefore(clickedTile, temp);
+                temp.parentNode.removeChild(temp);
+                deselectTile();
+            } else {
+                deselectTile();
+                selectTile(clickedTile);
+            }
+        }
+
+        function handleContainerClick(e) {
+            if (!selectedTile) return;
+            let target = e.target.closest('.drop-zone');
+            if (!target) return;
+            processMove(selectedTile, target);
+            deselectTile();
+        }
+
+        function selectTile(tile) { selectedTile = tile; tile.classList.add('selected'); }
+        function deselectTile() { if(selectedTile) { selectedTile.classList.remove('selected'); selectedTile = null; } }
+
+        function processMove(tile, target) {
+            if(currentMode === 'competition') {
+                const parent = tile.parentElement;
+                if(parent.id === 'rack-opp' && activePlayer === 'me') return;
+                if(parent.id === 'rack-me' && activePlayer === 'opp') return;
+                if(target.classList.contains('masked')) return;
+                if(target.dataset.zone === 'pool') return; // Cant drop back to visual pool
+            }
+
+            if (target.id === 'rack-me' || target.id === 'rack-opp') {
+                if (tile.parentElement !== target && target.children.length >= 8) return; 
+            }
+
+            if (currentMode === 'competition' && target.dataset.zone === 'board') {
+                if(!placedTiles.includes(tile)) placedTiles.push(tile);
+                tile.classList.add('new-placement');
+                if (tile.dataset.isPoly === "true") {
+                    pendingTileForModal = tile;
+                    showTileModal(tile.dataset.val);
+                }
+            } else {
+                if(tile.dataset.realVal) {
+                     tile.querySelector('span:first-child').innerText = tile.dataset.val; 
+                     tile.style.color = '#333';
+                     delete tile.dataset.realVal;
+                }
+                tile.classList.remove('new-placement');
+                placedTiles = placedTiles.filter(t => t !== tile);
+            }
+
+            // Teaching mode specific: Dropping back to pool
+            if(currentMode === 'teaching' && target.dataset.zone === 'pool') {
+                let tileVal = tile.dataset.val;
+                // Find correct row in current container or find container by type
+                // target might be a row, or a pool-list
+                // If it's a row, use it. If not, find row.
+                if(!target.classList.contains('pool-row')) {
+                    // Try to find the correct row in this container or determine correct container
+                    // Simple fallback: find container by tile type
+                    // Actually 'target' is a drop-zone. 
+                    // In teaching, pool-row is drop-zone. pool-list is not explicitly drop-zone but children are?
+                    // We need to find the correct row for this tile value.
+                    let type = tile.dataset.groupType;
+                    const contentMap = {
+                        'low': 'content-low', 'high1': 'content-high-1', 'high2': 'content-high-2',
+                        'ops1': 'content-ops-1', 'ops2': 'content-ops-2', 'eq': 'content-eq'
+                    };
+                    let container = document.getElementById(contentMap[type]);
+                    let row = getRow(container, tileVal, type);
+                    target = row;
+                }
+            }
+            
+            target.appendChild(tile);
+            if(currentMode === 'competition') updateCompetitionView();
+            if(currentMode === 'teaching') updateTeachingView();
+        }
+
+        function showTileModal(val) {
+            const modal = document.getElementById('tile-modal');
+            const container = document.getElementById('modal-options');
+            container.innerHTML = '';
+            let options = [];
+            if (val === '±') options = ['+', '-'];
+            else if (val === '×/÷') options = ['×', '÷'];
+            else if (val === ' ') options = ['0','1','2','3','4','5','6','7','8','9','10','11','12','13','14','15','16','17','18','19','20','+','-','×','÷','='];
+
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = 'select-btn';
+                btn.innerText = opt;
+                btn.onclick = () => selectPolyValue(opt);
+                container.appendChild(btn);
+            });
+            modal.style.display = 'flex';
+        }
+
+        function selectPolyValue(val) {
+            if(pendingTileForModal) {
+                pendingTileForModal.dataset.realVal = val;
+                pendingTileForModal.querySelector('span:first-child').innerText = val; 
+                pendingTileForModal.style.color = 'blue';
+            }
+            closeModal();
+        }
+
+        function closeModal() {
+            document.getElementById('tile-modal').style.display = 'none';
+            pendingTileForModal = null;
+        }
+
+        function fillRack(player) {
+            const rackId = player === 'me' ? 'rack-me' : 'rack-opp';
+            const rack = document.getElementById(rackId);
+            const currentTiles = rack.children.length;
+            const needed = 8 - currentTiles;
+            
+            if (needed <= 0) return;
+
+            const allPoolTiles = Array.from(document.querySelectorAll('#bag-storage .tile'));
+            if (allPoolTiles.length === 0) return;
+
+            for(let i=0; i<needed; i++) {
+                if(allPoolTiles.length === 0) break;
+                const randIndex = Math.floor(Math.random() * allPoolTiles.length);
+                const tile = allPoolTiles.splice(randIndex, 1)[0]; 
+                rack.appendChild(tile); 
+            }
+            updateCompetitionView();
+        }
+
+        function openExchangeModal() {
+            const poolSize = document.getElementById('bag-storage').children.length;
+            if(poolSize < 5) {
+                alert("ไม่สามารถเปลี่ยนเบี้ยได้ (เบี้ยในถุงเหลือต่ำกว่า 5 ตัว)");
+                return;
+            }
+
+            const rackId = activePlayer === 'me' ? 'rack-me' : 'rack-opp';
+            const rack = document.getElementById(rackId);
+            if(rack.children.length === 0) {
+                alert("ไม่มีเบี้ยให้เปลี่ยน");
+                return;
+            }
+
+            tilesToExchange = [];
+            const container = document.getElementById('exchange-container');
+            container.innerHTML = '';
+
+            Array.from(rack.children).forEach(t => {
+                let clone = t.cloneNode(true);
+                clone.id = 'ex-' + t.id; 
+                clone.dataset.originId = t.id;
+                clone.classList.remove('selected', 'new-placement', 'locked');
+                clone.onclick = function() { toggleExchangeSelection(this); };
+                container.appendChild(clone);
+            });
+
+            document.getElementById('exchange-modal').style.display = 'flex';
+        }
+
+        function toggleExchangeSelection(cloneTile) {
+            if(cloneTile.classList.contains('exchange-selected')) {
+                cloneTile.classList.remove('exchange-selected');
+                tilesToExchange = tilesToExchange.filter(id => id !== cloneTile.dataset.originId);
+            } else {
+                cloneTile.classList.add('exchange-selected');
+                tilesToExchange.push(cloneTile.dataset.originId);
+            }
+        }
+
+        function confirmExchange() {
+            if(tilesToExchange.length === 0) {
+                alert("กรุณาเลือกเบี้ยอย่างน้อย 1 ตัว");
+                return;
+            }
+            
+            tilesToExchange.forEach(id => {
+                const originalTile = document.getElementById(id);
+                if(originalTile) {
+                    if(originalTile.dataset.realVal) {
+                         originalTile.querySelector('span:first-child').innerText = originalTile.dataset.val; 
+                         originalTile.style.color = '#333';
+                         delete originalTile.dataset.realVal;
+                    }
+                    document.getElementById('bag-storage').appendChild(originalTile);
+                }
+            });
+
+            const count = tilesToExchange.length;
+            addToLog('Exchange', `Changed ${count} tiles`, '-');
+            
+            closeExchangeModal();
+            fillRack(activePlayer); 
+            passTurn();
+        }
+
+        function closeExchangeModal() {
+            document.getElementById('exchange-modal').style.display = 'none';
+            tilesToExchange = [];
+        }
+
+        function addToLog(action, detail, score) {
+            const logBox = document.getElementById('game-log');
+            const player = activePlayer === 'me' ? 'P1' : 'P2';
+            
+            if(action !== 'Game Start') {
+                const turnDiv = document.createElement('div');
+                turnDiv.className = 'log-entry turn';
+                turnDiv.innerText = `Turn ${turnCount}: ${player}`;
+                logBox.appendChild(turnDiv);
+            }
+
+            const actionDiv = document.createElement('div');
+            actionDiv.className = 'log-entry action';
+            actionDiv.innerText = `${action} | ${detail} | ${score} pts`;
+            logBox.appendChild(actionDiv);
+
+            if(action !== 'Game Start') turnCount++;
+            logBox.scrollTop = logBox.scrollHeight;
+        }
+
+        function submitTurn() {
+            if (placedTiles.length === 0) return;
+
+            if (!checkLinearity()) {
+                alert("การวางเบี้ยต้องอยู่ในแนวเดียวกัน");
+                return;
+            }
+
+            let virtualBoard = getBoardArray(); 
+            let isFirstTurn = document.querySelectorAll('.tile.locked').length === 0;
+
+            if (!isFirstTurn && !checkConnectivity(virtualBoard)) {
+                alert("เบี้ยใหม่ต้องวางต่อจากเบี้ยเดิม");
+                return;
+            }
+            
+            if (isFirstTurn) {
+                let centerCovered = placedTiles.some(t => {
+                    let loc = t.parentElement.dataset.loc.split(',');
+                    return parseInt(loc[0]) === 7 && parseInt(loc[1]) === 7;
+                });
+                if (!centerCovered) {
+                    alert("ตาแรกต้องวางทับช่องดาวตรงกลาง");
+                    return;
+                }
+            }
+
+            let validationResult = validateMath(virtualBoard);
+            if (!validationResult.isValid) {
+                alert("สมการไม่ถูกต้อง:\n" + validationResult.errorMsg);
+                return;
+            }
+
+            const turnScore = calculateScoreComplex(validationResult.formedEquations);
+            
+            placedTiles.forEach(t => {
+                t.classList.remove('new-placement');
+                t.classList.add('locked');
+                t.draggable = false; 
+            });
+            
+            const scoreInput = document.getElementById(activePlayer === 'me' ? 'score-me' : 'score-opp');
+            let totalScore = parseInt(scoreInput.value) + turnScore;
+            scoreInput.value = totalScore;
+
+            let eqText = validationResult.formedEquations.map(e => e.str).join(', ');
+            addToLog('Play', eqText, turnScore);
+
+            placedTiles = [];
+            fillRack(activePlayer); 
+
+            const remainingBag = document.getElementById('bag-storage').children.length;
+            const currentRackId = activePlayer === 'me' ? 'rack-me' : 'rack-opp';
+            const tilesInHand = document.getElementById(currentRackId).children.length; 
+
+            if (remainingBag === 0 && tilesInHand === 0) {
+                clearInterval(timerInterval);
+                let winnerName = activePlayer === 'me' ? 'Player 1' : 'Player 2';
+                alert(`GAME OVER!\n${winnerName} วางเบี้ยหมดมือและไม่มีเบี้ยในกองแล้ว\nจบเกม!`);
+                addToLog('Game End', `${winnerName} cleared rack`, '-');
+                return; 
+            }
+
+            passTurn();
+        }
+
+        function calculateScoreComplex(equations) {
+            let totalTurnScore = 0;
+            equations.forEach(eq => {
+                let equationScore = 0;
+                let wordMultiplier = 1; 
+
+                eq.tiles.forEach(tileData => {
+                    let tileScore = parseInt(tileData.tileObj.dataset.score);
+                    let cell = tileData.tileObj.parentElement;
+                    let bonus = "";
+                    
+                    if (tileData.isNew) {
+                        if (cell.classList.contains('blue')) bonus = "3L"; 
+                        else if (cell.classList.contains('orange')) bonus = "2L";
+                        else if (cell.classList.contains('red')) bonus = "3W";
+                        else if (cell.classList.contains('yellow')) bonus = "2W";
+                    }
+
+                    if (bonus === "3L") tileScore *= 3;
+                    else if (bonus === "2L") tileScore *= 2;
+
+                    if (bonus === "3W") wordMultiplier *= 3;
+                    else if (bonus === "2W") wordMultiplier *= 2;
+
+                    equationScore += tileScore;
+                });
+
+                equationScore *= wordMultiplier;
+                totalTurnScore += equationScore;
+            });
+
+            let placedCount = placedTiles.length;
+            if (placedCount >= 8) {
+                totalTurnScore += 40;
+                alert("BINGO! +40 คะแนน");
+            }
+            return totalTurnScore;
+        }
+
+        function recallTiles() {
+            if(placedTiles.length === 0) return;
+            const targetRack = activePlayer === 'me' ? document.getElementById('rack-me') : document.getElementById('rack-opp');
+            
+            placedTiles.forEach(t => {
+                t.classList.remove('new-placement');
+                if(t.dataset.realVal) {
+                     t.querySelector('span:first-child').innerText = t.dataset.val; 
+                     t.style.color = '#333';
+                     delete t.dataset.realVal;
+                }
+                targetRack.appendChild(t);
+            });
+            placedTiles = [];
+            if(currentMode==='competition') updateCompetitionView();
+            else updateTeachingView();
+        }
+
+        function passTurnAction() {
+            addToLog('Pass', 'Skipped turn', 0);
+            recallTiles();
+            passTurn();
+        }
+
+        function passTurn() {
+            activePlayer = (activePlayer === 'me') ? 'opp' : 'me';
+            updateTurnUI();
+            placedTiles = [];
+        }
+
+        function getBoardArray() {
+            let arr = Array(15).fill(null).map(() => Array(15).fill(null));
+            document.querySelectorAll('#board .cell').forEach(cell => {
+                let [r, c] = cell.dataset.loc.split(',').map(Number);
+                if (cell.children.length > 0) {
+                    let tile = cell.querySelector('.tile');
+                    let val = tile.dataset.realVal || tile.dataset.val;
+                    arr[r][c] = {
+                        val: val,
+                        tileObj: tile,
+                        isNew: tile.classList.contains('new-placement'),
+                        r: r, c: c
+                    };
+                }
+            });
+            return arr;
+        }
+
+        function checkLinearity() {
+            if (placedTiles.length === 0) return false;
+            if (placedTiles.length === 1) return true;
+            let rows = new Set();
+            let cols = new Set();
+            placedTiles.forEach(t => {
+                let [r, c] = t.parentElement.dataset.loc.split(',');
+                rows.add(r);
+                cols.add(c);
+            });
+            return rows.size === 1 || cols.size === 1;
+        }
+
+        function checkConnectivity(board) {
+            let newTiles = [];
+            for(let r=0; r<15; r++) {
+                for(let c=0; c<15; c++) {
+                    if(board[r][c] && board[r][c].isNew) {
+                        newTiles.push({r,c});
+                    }
+                }
+            }
+            for (let t of newTiles) {
+                let neighbors = [{r:t.r-1, c:t.c}, {r:t.r+1, c:t.c}, {r:t.r, c:t.c-1}, {r:t.r, c:t.c+1}];
+                for (let n of neighbors) {
+                    if (n.r >= 0 && n.r < 15 && n.c >= 0 && n.c < 15) {
+                        let neighborTile = board[n.r][n.c];
+                        if (neighborTile && !neighborTile.isNew) return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        function validateMath(board) {
+            let equations = [];
+            const scanLine = (line, isRow, index) => {
+                let currentSeq = [];
+                for (let i = 0; i < 15; i++) {
+                    let cell = isRow ? board[index][i] : board[i][index];
+                    if (cell) currentSeq.push(cell);
+                    else {
+                        if (currentSeq.length > 1) equations.push(processSequence(currentSeq));
+                        currentSeq = [];
+                    }
+                }
+                if (currentSeq.length > 1) equations.push(processSequence(currentSeq));
+            };
+
+            for (let i = 0; i < 15; i++) {
+                scanLine(null, true, i); 
+                scanLine(null, false, i); 
+            }
+
+            let relevantEquations = equations.filter(eq => eq.tiles.some(t => t.isNew));
+            
+            if (relevantEquations.length === 0 && placedTiles.length > 0) {
+                return { isValid: false, errorMsg: "ไม่ได้สร้างสมการใหม่" };
+            }
+
+            for (let eq of relevantEquations) {
+                if (!solveEquation(eq.str)) {
+                    return { isValid: false, errorMsg: `สมการผิด: ${eq.str}` };
+                }
+            }
+            return { isValid: true, formedEquations: relevantEquations };
+        }
+
+        function processSequence(tiles) {
+            let str = tiles.map(t => t.val).join('');
+            return { str: str, tiles: tiles };
+        }
+
+        function solveEquation(eqStr) {
+            if (!eqStr.includes('=')) return false;
+            let parts = eqStr.split('=');
+            if (parts.length < 2) return false; 
+
+            for (let part of parts) {
+                if (part.trim() === "") return false;
+                if (/^[+×÷]/.test(part)) return false; 
+                if (/[+×÷\-]$/.test(part)) return false; 
+                if (/[+×÷\-]{2,}/.test(part)) return false; 
+            }
+
+            const calculate = (expression) => {
+                try {
+                    let cleanExpr = expression.replace(/×/g, '*').replace(/÷/g, '/');
+                    if (/[^0-9+\-*/().\s]/.test(cleanExpr)) return NaN;
+                    return new Function('return ' + cleanExpr)();
+                } catch (e) { return NaN; }
+            };
+
+            let values = [];
+            for (let part of parts) {
+                let val = calculate(part);
+                if (isNaN(val) || !isFinite(val)) return false; 
+                values.push(val);
+            }
+
+            let firstVal = values[0];
+            for (let i = 1; i < values.length; i++) {
+                 if (Math.abs(firstVal - values[i]) > 0.000001) return false;
+            }
+            return true;
+        }
+
+        function saveGame() {
+            // Simplified Save logic
+            alert("Save is disabled in this fix version for stability.");
+        }
+
+        function loadGame(input) {
+            alert("Load is disabled in this fix version.");
+        }
+
+        function resetAll() {
+            if(confirm("ล้างกระดานและเริ่มใหม่ทั้งหมด?")) {
+                location.reload();
+            }
+        }
+
+        function exportBoard() {
+            const teachingSection = document.querySelector('.teaching-section');
+            const exitBtn = document.querySelector('.btn-exit');
+            const originalDisplayTeach = teachingSection.style.display;
+            const originalDisplayExit = exitBtn ? exitBtn.style.display : 'block';
+            
+            teachingSection.style.display = 'none';
+            if(exitBtn) exitBtn.style.display = 'none';
+
+            html2canvas(document.getElementById('export-area'), { scale: 2, backgroundColor: '#e0e0e0' }).then(canvas => {
+                downloadCanvas(canvas, 'RED_Dragon_Full_Analysis_');
+                teachingSection.style.display = originalDisplayTeach; 
+                if(exitBtn) exitBtn.style.display = originalDisplayExit;
+            });
+        }
+
+        function exportBoardOnly() { html2canvas(document.getElementById('board'), { scale: 2 }).then(c => downloadCanvas(c, 'RED_Dragon_Board_')); }
+        function exportRackOnly() { 
+            const rc = document.getElementById('my-rack-container'); 
+            const obg = rc.style.backgroundColor; rc.style.backgroundColor="#fff";
+            html2canvas(rc, { scale: 2 }).then(c => { downloadCanvas(c, 'RED_Dragon_MyRack_'); rc.style.backgroundColor=obg; });
+        }
+        function downloadCanvas(canvas, prefix) {
+            const link = document.createElement('a');
+            link.download = prefix + new Date().toISOString().slice(0,19).replace(/:/g,"-") + '.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+
+        init();
+    </script>
+</body>
+</html>
