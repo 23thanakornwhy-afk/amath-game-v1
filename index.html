@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <title>RED Dragon Equation CLUB (v11.2 Teaching Layout Fixed)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <title>RED Dragon Equation CLUB (v11.3 Mobile Layout Fixed)</title>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap');
@@ -28,9 +28,9 @@
 
         /* --- LANDING PAGE --- */
         #landing-page { display: flex; flex-direction: column; justify-content: center; align-items: center; height: 100vh; background: linear-gradient(135deg, #f3f0e6 0%, #e0e0e0 100%); position: fixed; top: 0; left: 0; width: 100%; z-index: 999; transition: opacity 0.5s ease; }
-        .logo-title { font-size: 48px; font-weight: bold; color: #8b0000; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); }
-        .subtitle { font-size: 20px; color: #555; margin-bottom: 40px; }
-        .mode-selection { display: flex; gap: 20px; }
+        .logo-title { font-size: 48px; font-weight: bold; color: #8b0000; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.1); text-align: center; }
+        .subtitle { font-size: 20px; color: #555; margin-bottom: 40px; text-align: center; }
+        .mode-selection { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
         .btn-start { padding: 20px 40px; font-size: 20px; font-weight: bold; color: white; border: none; border-radius: 10px; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.2); transition: all 0.3s; min-width: 200px; }
         .btn-teach { background-color: #27ae60; }
         .btn-compete { background-color: #c0392b; }
@@ -42,25 +42,63 @@
 
         /* --- LAYOUT --- */
         #export-area { background-color: #e0e0e0; width: 100%; display: flex; justify-content: center; padding-bottom: 20px; flex-direction: column; align-items: center; }
-        .main-container { display: flex; gap: 15px; align-items: flex-start; height: auto; width: 100%; justify-content: center; }
+        
+        /* Modified Main Container for Responsiveness */
+        .main-container { 
+            display: flex; 
+            gap: 15px; 
+            align-items: flex-start; 
+            height: auto; 
+            width: 100%; 
+            justify-content: center; 
+            flex-wrap: wrap; /* Key fix for mobile: Wrap columns */
+        }
 
-        /* LOG PANEL */
-        .log-panel { width: 250px; display: flex; flex-direction: column; gap: 10px; height: 600px; }
-        .log-box { background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; flex-direction: column; flex: 1; overflow: hidden; max-height: 480px; }
-        .log-header { background: #8b0000; color: white; padding: 10px; font-weight: bold; text-align: center; font-size: 14px; }
+        /* --- LOG & ACTION STYLES --- */
+        .action-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            width: 594px; /* Same width as player row */
+            margin-top: 10px;
+        }
+        .action-row button {
+            padding: 15px 5px;
+            font-size: 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            color: white;
+            border: none;
+            font-weight: bold;
+        }
+
+        /* MOVED LOG STYLES */
+        .log-section-right {
+            margin-top: 15px;
+            border-top: 2px dashed #ccc;
+            padding-top: 10px;
+        }
+        .log-box { 
+            background: white; 
+            border-radius: 8px; 
+            box-shadow: inset 0 0 5px rgba(0,0,0,0.1); 
+            display: flex; 
+            flex-direction: column; 
+            border: 1px solid #ddd;
+            height: 200px; /* Fixed height for log in right panel */
+        }
+        .log-header { background: #8b0000; color: white; padding: 5px; font-weight: bold; text-align: center; font-size: 12px; border-radius: 6px 6px 0 0; }
         .log-content { flex: 1; padding: 10px; overflow-y: auto; font-size: 12px; font-family: monospace; line-height: 1.4; }
         .log-entry { margin-bottom: 5px; border-bottom: 1px solid #eee; padding-bottom: 2px; }
         .log-entry.turn { color: #000; font-weight: bold; margin-top: 5px; background: #f0f0f0;}
         .log-entry.action { color: #555; padding-left: 5px; }
-        .log-action-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .log-action-buttons button { padding: 15px 5px; font-size: 16px; border-radius: 6px; }
 
         /* LEFT PANEL (BOARD) */
-        .left-panel { display: flex; flex-direction: column; gap: 15px; width: 600px; align-items: center; }
-        .board-title { margin: 0 0 5px 0; color: #8b0000; font-size: 24px; text-transform: uppercase; letter-spacing: 1px; text-align: center; width: 584px; }
+        .left-panel { display: flex; flex-direction: column; gap: 15px; width: 600px; align-items: center; max-width: 100%; }
+        .board-title { margin: 0 0 5px 0; color: #8b0000; font-size: 24px; text-transform: uppercase; letter-spacing: 1px; text-align: center; width: 100%; max-width: 584px; }
 
         /* STATUS BAR */
-        #game-status-bar { display: none; width: 584px; justify-content: space-between; background: #333; color: white; padding: 10px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        #game-status-bar { display: none; width: 584px; justify-content: space-between; background: #333; color: white; padding: 10px; border-radius: 8px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); max-width: 95vw; }
         .timer-box { text-align: center; width: 120px; padding: 5px; border-radius: 4px; }
         .timer-box.active { background-color: #f1c40f; color: #333; font-weight: bold; box-shadow: 0 0 10px #f1c40f; }
         .timer-label { font-size: 12px; display: block; }
@@ -74,7 +112,7 @@
         .cell::after { content: attr(data-bonus); font-size: 7px; color: rgba(0,0,0,0.3); position: absolute; z-index: 0; }
 
         /* PLAYER ROWS */
-        .player-row { display: flex; width: 594px; gap: 10px; align-items: stretch; transition: all 0.3s; padding: 5px; border-radius: 8px; }
+        .player-row { display: flex; width: 594px; gap: 10px; align-items: stretch; transition: all 0.3s; padding: 5px; border-radius: 8px; max-width: 95vw; }
         .player-row.active-turn { background-color: rgba(46, 204, 113, 0.2); border: 2px solid #27ae60; }
         .score-box-compact { background: #fff; border: 2px solid #8b0000; border-radius: 6px; width: 100px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 5px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .score-label { font-size: 14px; font-weight: bold; color: #555; }
@@ -88,7 +126,7 @@
         .rack-slots.masked .tile span { display: none; } 
 
         /* RIGHT PANEL */
-        .right-panel { width: 520px; display: flex; flex-direction: column; gap: 15px; margin-top: 0; }
+        .right-panel { width: 520px; display: flex; flex-direction: column; gap: 15px; margin-top: 0; max-width: 95vw; }
         .pool-section { background: white; padding: 10px; border-radius: 8px; display: flex; flex-direction: column; height: auto; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         .pool-header-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: bold; font-size: 12px; }
         
@@ -116,11 +154,13 @@
         .btn { padding: 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; color: white; font-size: 14px; min-width: 0; }
         .btn-save { background-color: #27ae60; } .btn-load { background-color: #2980b9; } .btn-reset { background-color: #c0392b; } 
         .btn-export { background-color: #9b59b6; } .btn-export-board { background-color: #3498db; } .btn-export-rack { background-color: #1abc9c; } 
-        .btn-submit { background-color: #d35400; display: none; color:white; border:none; cursor: pointer; font-weight:bold;} 
-        .btn-pass { background-color: #7f8c8d; display: none; color:white; border:none; cursor: pointer; font-weight:bold;} 
-        .btn-exchange { background-color: #8e44ad; display: none; color:white; border:none; cursor: pointer; font-weight:bold;}
-        .btn-recall { background-color: #e67e22; display: none; color:white; border:none; cursor: pointer; font-weight:bold;}
-        .btn:hover, .log-action-buttons button:hover { opacity: 0.9; }
+        
+        /* Action Buttons Colors */
+        .btn-submit { background-color: #d35400; display: none; } 
+        .btn-pass { background-color: #7f8c8d; display: none; } 
+        .btn-exchange { background-color: #8e44ad; display: none; }
+        .btn-recall { background-color: #e67e22; display: none; }
+        .btn:hover, .action-row button:hover { opacity: 0.9; }
         #fileInput { display: none; }
 
         .tile { width: 34px; height: 34px; background-color: #f5a2a2; border: 1px solid #d48888; border-bottom: 2px solid #b06b6b; border-radius: 4px; display: flex; justify-content: center; align-items: center; font-weight: bold; font-size: 18px; color: #333; cursor: grab; position: relative; z-index: 10; user-select: none; box-shadow: 1px 1px 2px rgba(0,0,0,0.1); margin-right: 2px; flex-shrink: 0; }
@@ -134,6 +174,15 @@
         .teaching-section { display: flex; flex-direction: column; align-items: center; width: 100%; padding-bottom: 50px; border-top: 2px dashed #999; padding-top: 20px; background-color: #dcdcdc; margin-top: 20px; }
         .teaching-title { font-size: 20px; font-weight: bold; color: #333; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px; }
         #teaching-board { display: grid; grid-template-columns: repeat(15, 38px); grid-template-rows: repeat(3, 38px); gap: 1px; background-color: #777; border: 5px solid #556b2f; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+
+        /* Mobile specific fixes */
+        @media (max-width: 650px) {
+            #board { transform: scale(0.6); margin: -100px 0; }
+            .board-title { font-size: 18px; }
+            .action-row { width: 100%; max-width: 350px; }
+            .player-row { width: 100%; max-width: 360px; }
+            .right-panel { width: 100%; }
+        }
     </style>
 </head>
 <body>
@@ -176,19 +225,6 @@
             <h1 class="board-title">RED Dragon Equation CLUB Analysis Board</h1>
 
             <div class="main-container">
-                <div class="log-panel">
-                    <div class="log-box">
-                        <div class="log-header">GAME LOG</div>
-                        <div id="game-log" class="log-content"></div>
-                    </div>
-                    <div class="log-action-buttons">
-                        <button class="btn-submit" id="btn-submit" onclick="submitTurn()">Submit</button>
-                        <button class="btn-pass" id="btn-pass" onclick="passTurnAction()">Pass</button>
-                        <button class="btn-exchange" id="btn-exchange" onclick="openExchangeModal()">Exchange</button>
-                        <button class="btn-recall" id="btn-recall" onclick="recallTiles()">Recall</button>
-                    </div>
-                </div>
-
                 <div class="left-panel">
                     <div id="game-status-bar">
                         <div class="timer-box" id="timer-box-me">
@@ -224,6 +260,13 @@
                             <div class="rack-label" id="label-rack-opp">Opponent Rack</div>
                             <div id="rack-opp" class="rack-slots drop-zone" data-zone="rack"></div>
                         </div>
+                    </div>
+
+                    <div class="action-row">
+                        <button class="btn-submit" id="btn-submit" onclick="submitTurn()">Submit</button>
+                        <button class="btn-pass" id="btn-pass" onclick="passTurnAction()">Pass</button>
+                        <button class="btn-exchange" id="btn-exchange" onclick="openExchangeModal()">Exchange</button>
+                        <button class="btn-recall" id="btn-recall" onclick="recallTiles()">Recall</button>
                     </div>
                 </div>
 
@@ -275,7 +318,7 @@
 
                     <div class="card">
                         <label style="font-size:12px; font-weight:bold; color:#555;">บันทึก (Notes):</label>
-                        <textarea id="game-notes" placeholder="บันทึกรูปเกม..."></textarea>
+                        <textarea id="game-notes" placeholder="บันทึกรูปเกม..." style="width: 100%; box-sizing: border-box;"></textarea>
                         
                         <div class="btn-group">
                             <button class="btn btn-save" onclick="saveGame()">Save JSON</button>
@@ -287,6 +330,13 @@
                             <button class="btn btn-export" onclick="exportBoard()">Save All</button>
                             
                             <input type="file" id="fileInput" accept=".json" onchange="loadGame(this)">
+                        </div>
+
+                        <div class="log-section-right">
+                            <div class="log-box">
+                                <div class="log-header">GAME LOG</div>
+                                <div id="game-log" class="log-content"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
